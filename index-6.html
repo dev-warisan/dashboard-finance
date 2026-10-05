@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Warisan - Sistem Terintegrasi</title>
+<style>
+:root{
+  --bg:#0f172a; --card:#1e293b; --border:#334155;
+  --text:#f8fafc; --muted:#94a3b8; --accent:#38bdf8; --primary:#2563eb;
+  --emerald:#34d399; --amber:#fbbf24; --red:#f87171; --purple:#a78bfa;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none}
+input,select{font-family:inherit;font-size:.85rem}
+.hidden{display:none!important}
+
+/* ============ LOGIN ============ */
+#viewLogin{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;
+  background-image:radial-gradient(ellipse at top,rgba(37,99,235,.15),transparent 55%)}
+.login-card{width:100%;max-width:400px;background:var(--card);border:1px solid var(--border);
+  border-radius:1rem;padding:2rem;animation:fadeUp .4s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.brand{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.brand-icon{width:42px;height:42px;border-radius:.65rem;background:var(--primary);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.15rem}
+.brand h1{font-size:1.15rem}.brand p{font-size:.75rem;color:var(--muted)}
+label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:.35rem}
+.field{margin-bottom:.9rem}
+input,select{width:100%;padding:.65rem .8rem;border-radius:.55rem;border:1px solid var(--border);
+  background:var(--bg);color:var(--text);outline:none;transition:border-color .2s}
+input:focus,select:focus{border-color:var(--accent)}
+.btn{width:100%;padding:.7rem;border-radius:.55rem;font-size:.88rem;font-weight:600;
+  transition:filter .2s,transform .1s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{filter:brightness(1.1)}
+.btn-google{background:#fff;color:#1f2937;display:flex;align-items:center;justify-content:center;gap:.55rem}
+.btn-google:hover{filter:brightness(.94)}
+.divider{display:flex;align-items:center;gap:.75rem;margin:1.1rem 0;color:var(--muted);font-size:.73rem}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--border)}
+.alert{display:none;padding:.6rem .8rem;border-radius:.5rem;font-size:.78rem;margin-bottom:.9rem;border:1px solid}
+.alert.error{display:block;background:rgba(239,68,68,.12);border-color:#ef4444;color:var(--red)}
+.hint{margin-top:1.1rem;padding:.7rem;border:1px dashed var(--border);border-radius:.6rem;
+  font-size:.7rem;color:var(--muted);line-height:1.6}
+.hint code{color:var(--accent)}
+
+/* ============ LAYOUT ============ */
+#viewApp{display:flex;min-height:100vh}
+.sidebar{width:250px;flex-shrink:0;background:var(--card);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;height:100vh;position:sticky;top:0;
+  transition:transform .25s ease;z-index:50}
+.sidebar-brand{display:flex;align-items:center;gap:.75rem;padding:1.2rem 1.5rem;border-bottom:1px solid var(--border)}
+.sidebar-brand .logo{width:38px;height:38px;border-radius:.6rem;background:var(--primary);
+  display:flex;align-items:center;justify-content:center;font-weight:700}
+.sidebar-brand h1{font-size:1rem}.sidebar-brand p{font-size:.68rem;color:var(--muted)}
+.sidebar nav{flex:1;overflow-y:auto;padding:.75rem 0}
+.sidebar nav a{display:flex;align-items:center;gap:.7rem;padding:.68rem 1.5rem;font-size:.85rem;
+  color:var(--muted);border-left:3px solid transparent;transition:background .15s,color .15s}
+.sidebar nav a .ic{width:1.2rem;text-align:center}
+.sidebar nav a:hover{background:#253349;color:var(--accent)}
+.sidebar nav a.active{background:rgba(37,99,235,.25);color:#fff;border-left-color:var(--accent)}
+.sidebar-user{display:flex;align-items:center;gap:.65rem;padding:1rem 1.25rem;border-top:1px solid var(--border)}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--primary);display:flex;align-items:center;
+  justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0}
+.sidebar-user .name{font-size:.8rem;font-weight:600}
+.sidebar-user .role{font-size:.66rem;color:var(--muted)}
+.btn-logout{margin-left:auto;background:transparent;color:var(--muted);font-size:.95rem;
+  padding:.35rem .5rem;border-radius:.4rem}
+.btn-logout:hover{color:var(--red);background:rgba(239,68,68,.12)}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:.85rem 1.25rem;
+  display:flex;align-items:center;gap:.85rem;position:sticky;top:0;z-index:40}
+.hamburger{display:none;background:transparent;color:var(--muted);font-size:1.25rem;padding:.25rem .5rem;border-radius:.4rem}
+.hamburger:hover{background:#253349;color:var(--text)}
+.topbar h2{font-size:1.05rem;font-weight:600;flex:1;min-width:0}
+.topbar .date{font-size:.73rem;color:var(--muted);white-space:nowrap}
+.btn-sync{background:var(--primary);color:#fff;font-size:.76rem;font-weight:600;
+  padding:.5rem .9rem;border-radius:.55rem;white-space:nowrap;transition:filter .2s}
+.btn-sync:hover{filter:brightness(1.12)}
+
+.content{padding:1.25rem}
+.page{display:none;gap:1.25px}
+.page.active{display:grid;gap:1.25rem}
+
+/* ============ KOMPONEN ============ */
+.card{background:var(--card);border:1px solid var(--border);border-radius:.8rem;padding:1.1rem}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;gap:.6rem;flex-wrap:wrap}
+.card-head h3{font-size:.9rem;font-weight:600}
+.card-title{font-size:.9rem;font-weight:600;margin-bottom:.9rem}
+.stats{display:grid;gap:1rem;grid-template-columns:repeat(4,1fr)}
+.stat-card{transition:transform .2s,box-shadow .2s}
+.stat-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.stat-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+.stat-head p{font-size:.72rem;color:var(--muted);margin-bottom:.3rem}
+.stat-head h3{font-size:1.2rem;font-weight:700;white-space:nowrap}
+.stat-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.9rem;flex-shrink:0}
+.ic-blue{background:rgba(59,130,246,.15);color:#60a5fa}
+.ic-emerald{background:rgba(16,185,129,.15);color:var(--emerald)}
+.ic-purple{background:rgba(139,92,246,.15);color:var(--purple)}
+.ic-amber{background:rgba(245,158,11,.15);color:var(--amber)}
+.ic-red{background:rgba(239,68,68,.15);color:var(--red)}
+.stat-foot{margin-top:.55rem;font-size:.68rem}
+.text-up{color:var(--emerald)}.text-muted2{color:var(--muted)}
+.badges{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.55rem}
+.badge{font-size:.65rem;padding:.2rem .55rem;border-radius:99px;border:1px solid}
+.badge-cocok{background:rgba(16,185,129,.12);border-color:#10b981;color:var(--emerald)}
+.badge-pending{background:rgba(245,158,11,.12);border-color:#f59e0b;color:var(--amber)}
+.badge-selisih{background:rgba(239,68,68,.12);border-color:#ef4444;color:var(--red)}
+
+.grid-2-1{display:grid;gap:1.25rem;grid-template-columns:2fr 1fr}
+.grid-1-1{display:grid;gap:1.25rem;grid-template-columns:1fr 1fr}
+.chart-box{height:250px;position:relative}
+.recon-list{display:grid;gap:.7rem}
+.recon-item{display:flex;align-items:center;gap:.7rem;background:var(--bg);
+  border:1px solid var(--border);border-radius:.6rem;padding:.7rem .8rem}
+.recon-item .dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.75rem;flex-shrink:0}
+.recon-item p{font-size:.78rem;font-weight:600}
+.recon-item span{display:block;font-size:.64rem;color:var(--muted);font-weight:400}
+.recon-item b{margin-left:auto;font-size:.95rem}
+
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;min-width:560px;border-collapse:collapse;font-size:.78rem;text-align:left}
+thead th{background:var(--bg);color:var(--muted);font-size:.63rem;text-transform:uppercase;
+  letter-spacing:.04em;padding:.6rem .8rem;font-weight:600;white-space:nowrap}
+tbody td{padding:.62rem .8rem;border-top:1px solid var(--border);color:var(--muted);white-space:nowrap;vertical-align:middle}
+tbody td:first-child{color:var(--text);font-weight:500}
+tbody tr:hover td{background:rgba(15,23,42,.55)}
+.num-right{text-align:right}
+.text-em{color:var(--emerald)}.text-red{color:var(--red)}
+.text-w{color:var(--text);font-weight:600}
+.tag{font-size:.62rem;padding:.18rem .5rem;border-radius:.35rem;font-weight:600}
+.tag-bca{background:rgba(59,130,246,.15);color:#60a5fa}
+.tag-mandiri{background:rgba(139,92,246,.15);color:var(--purple)}
+.tag-bri{background:rgba(245,158,11,.15);color:var(--amber)}
+.tag-cash{background:rgba(148,163,184,.15);color:var(--muted)}
+.tag-tf{background:rgba(16,185,129,.15);color:var(--emerald)}
+.tag-qris{background:rgba(236,72,153,.15);color:#f472b6}
+
+.btn-sm{font-size:.7rem;font-weight:600;padding:.35rem .7rem;border-radius:.45rem;white-space:nowrap;transition:filter .15s}
+.btn-sm:hover{filter:brightness(1.15)}
+.btn-act{background:rgba(56,189,248,.15);color:var(--accent);border:1px solid rgba(56,189,248,.4)}
+.btn-warn{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.4)}
+.btn-danger{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.4)}
+.btn-ok{background:rgba(16,185,129,.15);color:var(--emerald);border:1px solid rgba(16,185,129,.4)}
+.btn-outline2{background:#253349;color:var(--text);font-size:.75rem;padding:.55rem 1rem;
+  border-radius:.55rem;transition:background .2s}
+.btn-outline2:hover{background:#33445e}
+.btn-main{background:var(--primary);color:#fff;font-size:.75rem;font-weight:600;
+  padding:.55rem 1rem;border-radius:.55rem}
+.btn-main:hover{filter:brightness(1.12)}
+
+.toolbar{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.9rem}
+.toolbar input,.toolbar select{width:auto;flex:1;min-width:150px;padding:.5rem .7rem;font-size:.78rem}
+.toolbar select{flex:0 1 auto}
+
+/* produk cards */
+.prod-grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.prod-card{background:var(--bg);border:1px solid var(--border);border-radius:.7rem;padding:.9rem;
+  display:flex;flex-direction:column;gap:.4rem}
+.prod-card .pname{font-size:.85rem;font-weight:600}
+.prod-card .pcat{font-size:.65rem;color:var(--muted)}
+.prod-card .pharga{font-size:.95rem;font-weight:700;color:var(--accent)}
+.prod-card .pstok{font-size:.68rem}
+.prod-actions{display:flex;gap:.4rem;margin-top:auto}
+.prod-actions .btn-sm{flex:1}
+
+/* pengaturan */
+.form-grid{display:grid;gap:.9rem;grid-template-columns:1fr 1fr}
+.danger-zone{border-color:rgba(239,68,68,.4)!important}
+.api-box{background:var(--bg);border:1px solid var(--border);border-radius:.55rem;
+  padding:.7rem .8rem;font-size:.72rem;color:var(--muted);word-break:break-all;line-height:1.6}
+.api-box code{color:var(--accent);font-size:.7rem}
+
+/* ============ MODAL ============ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:90;display:none;
+  align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:.9rem;
+  width:100%;max-width:440px;padding:1.4rem;animation:fadeUp .25s ease both;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:.95rem;margin-bottom:1rem}
+.modal .field{margin-bottom:.8rem}
+.modal-actions{display:flex;gap:.6rem;margin-top:1.1rem}
+.modal-actions .btn{flex:1}
+.btn-cancel{background:#253349;color:var(--text)}
+.btn-cancel:hover{background:#33445e}
+
+/* ============ TOAST ============ */
+#toast{position:fixed;bottom:1.25rem;right:1.25rem;z-index:99;display:flex;flex-direction:column;gap:.5rem}
+.toast-item{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--emerald);
+  border-radius:.55rem;padding:.7rem 1rem;font-size:.78rem;box-shadow:0 8px 24px rgba(0,0,0,.4);
+  animation:fadeUp .25s ease both}
+.toast-item.err{border-left-color:var(--red)}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:45}
+.empty{padding:2rem;text-align:center;color:var(--muted);font-size:.8rem}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:1024px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .grid-2-1,.grid-1-1{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+}
+@media (max-width:768px){
+  .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .overlay.show{display:block}
+  .hamburger{display:block}
+  .topbar .date{display:none}
+}
+@media (max-width:480px){
+  .stats{grid-template-columns:1fr}
+  .content{padding:.9rem}
+  .stat-head h3{font-size:1.05rem;white-space:normal}
+  .modal-actions{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="viewLogin">
+  <div class="login-card">
+    <div class="brand">
+      <div class="brand-icon">W</div>
+      <div><h1>Warisan</h1><p>Sistem Terintegrasi</p></div>
+    </div>
+    <div id="alert" class="alert error"></div>
+    <form id="loginForm" autocomplete="off">
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" required placeholder="nama@perusahaan.id">
+      </div>
+      <div class="field">
+        <label for="password">Kata Sandi</label>
+        <input type="password" id="password" required placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn btn-primary" id="btnLogin">Masuk</button>
+    </form>
+    <div class="divider">atau</div>
+    <button class="btn btn-google" id="btnGoogle" type="button">
+      <svg width="17" height="17" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.5 6.1 29.5 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.5 6.1 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.5l6.2 5.2C41 35.4 44 30.2 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+      Masuk dengan Google
+    </button>
+    <div class="hint">
+      <strong>Akun demo:</strong> <code>admin@warisan.id</code> / <code>admin123</code> ·
+      <code>kasir@warisan.id</code> / <code>kasir123</code>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="viewApp" class="hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">W</div>
+      <div><h1>Warisan</h1><p>Sistem Terintegrasi</p></div>
+    </div>
+    <nav id="mainNav">
+      <a href="#" class="active" data-page="dashboard"><span class="ic">🏠</span> Dashboard</a>
+      <a href="#" data-page="penjualan"><span class="ic">🛒</span> Penjualan</a>
+      <a href="#" data-page="mutasi"><span class="ic">🏦</span> Mutasi Bank</a>
+      <a href="#" data-page="rekon"><span class="ic">✅</span> Rekonsiliasi</a>
+      <a href="#" data-page="laporan"><span class="ic">🧾</span> Laporan</a>
+      <a href="#" data-page="produk"><span class="ic">📦</span> Master Produk</a>
+      <a href="#" data-page="pengaturan"><span class="ic">⚙️</span> Pengaturan</a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="avatar" id="userAvatar">A</div>
+      <div>
+        <p class="name" id="userName">…</p>
+        <p class="role" id="userRole">…</p>
+      </div>
+      <button class="btn-logout" id="btnLogout" title="Keluar">⏻</button>
+    </div>
+  </aside>
+  <div class="overlay" id="overlay"></div>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="hamburger" id="btnMenu" aria-label="Buka menu">☰</button>
+      <h2 id="pageTitle">Dashboard Overview</h2>
+      <span class="date" id="todayDate"></span>
+      <button class="btn-sync" id="btnSync">⟳ Sinkronisasi</button>
+    </header>
+
+    <div class="content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <section class="page active" id="page-dashboard">
+        <div class="stats" id="dashStats"></div>
+        <div class="grid-2-1">
+          <div class="card">
+            <div class="card-head">
+              <h3>Tren Penjualan per Gerai</h3>
+              <select id="chartRange">
+                <option value="7">7 Hari Terakhir</option>
+                <option value="30">30 Hari Terakhir</option>
+              </select>
+            </div>
+            <div class="chart-box"><canvas id="salesChart"></canvas></div>
+          </div>
+          <div class="card">
+            <h3 class="card-title">Ringkasan Rekonsiliasi</h3>
+            <div class="recon-list" id="dashRecon"></div>
+            <button class="btn-outline2" style="width:100%;margin-top:.9rem" onclick="showPage('rekon')">Lihat Detail Selisih</button>
+          </div>
+        </div>
+        <div class="grid-1-1">
+          <div class="card">
+            <div class="card-head">
+              <h3>Mutasi Bank Terbaru</h3>
+              <a href="#" class="text-up" style="font-size:.75rem" onclick="showPage('mutasi');return false">Lihat Semua</a>
+            </div>
+            <div class="table-wrap" id="dashMutasi"></div>
+          </div>
+          <div class="card">
+            <div class="card-head">
+              <h3>Penjualan Terbaru</h3>
+              <a href="#" class="text-up" style="font-size:.75rem" onclick="showPage('penjualan');return false">Lihat Semua</a>
+            </div>
+            <div class="table-wrap" id="dashSales"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PENJUALAN ===== -->
+      <section class="page" id="page-penjualan">
+        <div class="card">
+          <div class="card-head">
+            <h3>Data Penjualan</h3>
+            <button class="btn-main" onclick="openSaleModal()">+ Tambah Penjualan</button>
+          </div>
+          <div class="toolbar">
+            <input type="search" id="saleSearch" placeholder="🔍 Cari produk / gerai…" oninput="renderPenjualan()">
+            <select id="saleFilterGerai" onchange="renderPenjualan()">
+              <option value="">Semua Gerai</option>
+            </select>
+            <select id="saleFilterMetode" onchange="renderPenjualan()">
+              <option value="">Semua Metode</option>
+              <option>Tunai</option><option>Transfer</option><option>QRIS</option>
+            </select>
+          </div>
+          <div class="table-wrap" id="saleTable"></div>
+        </div>
+      </section>
+
+      <!-- ===== MUTASI BANK ===== -->
+      <section class="page" id="page-mutasi">
+        <div class="card">
+          <div class="card-head">
+            <h3>Mutasi Bank (1 Gmail, 3 Bank)</h3>
+            <button class="btn-main" onclick="openMutasiModal()">+ Tambah Mutasi</button>
+          </div>
+          <div class="toolbar">
+            <input type="search" id="mutSearch" placeholder="🔍 Cari keterangan…" oninput="renderMutasi()">
+            <select id="mutFilterBank" onchange="renderMutasi()">
+              <option value="">Semua Bank</option>
+              <option>BCA</option><option>Mandiri</option><option>BRI</option>
+            </select>
+          </div>
+          <div class="table-wrap" id="mutTable"></div>
+        </div>
+      </section>
+
+      <!-- ===== REKONSILIASI ===== -->
+      <section class="page" id="page-rekon">
+        <div class="card">
+          <div class="card-head">
+            <h3>Rekonsiliasi Bank ↔ Penjualan</h3>
+            <button class="btn-main" onclick="runRekon()">⚡ Jalankan Rekonsiliasi Otomatis</button>
+          </div>
+          <div class="toolbar">
+            <select id="rekonFilter" onchange="renderRekon()">
+              <option value="">Semua Status</option>
+              <option value="cocok">Cocok</option>
+              <option value="pending">Pending</option>
+              <option value="selisih">Selisih</option>
+            </select>
+          </div>
+          <div class="table-wrap" id="rekonTable"></div>
+        </div>
+      </section>
+
+      <!-- ===== LAPORAN ===== -->
+      <section class="page" id="page-laporan">
+        <div class="stats" id="reportStats"></div>
+        <div class="card">
+          <div class="card-head">
+            <h3>Laporan Penjualan</h3>
+            <button class="btn-main" onclick="exportCSV()">⬇ Export CSV</button>
+          </div>
+          <div class="toolbar">
+            <div class="field" style="margin:0;flex:1;min-width:140px">
+              <label style="font-size:.68rem">Dari Tanggal</label>
+              <input type="date" id="repFrom" onchange="renderLaporan()">
+            </div>
+            <div class="field" style="margin:0;flex:1;min-width:140px">
+              <label style="font-size:.68rem">Sampai Tanggal</label>
+              <input type="date" id="repTo" onchange="renderLaporan()">
+            </div>
+          </div>
+          <div class="table-wrap" id="reportTable"></div>
+        </div>
+      </section>
+
+      <!-- ===== MASTER PRODUK ===== -->
+      <section class="page" id="page-produk">
+        <div class="card">
+          <div class="card-head">
+            <h3>Master Produk</h3>
+            <button class="btn-main" onclick="openProductModal()">+ Tambah Produk</button>
+          </div>
+          <div class="toolbar">
+            <input type="search" id="prodSearch" placeholder="🔍 Cari produk…" oninput="renderProduk()">
+          </div>
+          <div class="prod-grid" id="prodGrid"></div>
+        </div>
+      </section>
+
+      <!-- ===== PENGATURAN ===== -->
+      <section class="page" id="page-pengaturan">
+        <div class="grid-1-1">
+          <div class="card">
+            <h3 class="card-title">Profil Pengguna</h3>
+            <div class="field"><label>Nama</label><input type="text" id="setName"></div>
+            <div class="field"><label>Email</label><input type="email" id="setEmail" disabled></div>
+            <div class="field"><label>Role</label><input type="text" id="setRole" disabled></div>
+            <button class="btn-main" onclick="saveProfile()">Simpan Profil</button>
+          </div>
+          <div class="card">
+            <h3 class="card-title">Koneksi API (Google Apps Script)</h3>
+            <p style="font-size:.75rem;color:var(--muted);margin-bottom:.7rem;line-height:1.6">
+              Isi URL Web App Apps Script Anda saat backend sudah siap. Frontend akan otomatis
+              mengambil data dari API tersebut dan berjalan lokal (offline-first) bila API belum diisi.
+            </p>
+            <div class="field">
+              <label>URL Apps Script Web App</label>
+              <input type="url" id="setApiUrl" placeholder="https://script.google.com/macros/s/…/exec">
+            </div>
+            <button class="btn-main" onclick="saveApiUrl()">Simpan URL</button>
+            <div class="api-box" style="margin-top:.8rem" id="apiStatus"></div>
+          </div>
+        </div>
+        <div class="card danger-zone">
+          <h3 class="card-title" style="color:var(--red)">Zona Berbahaya</h3>
+          <p style="font-size:.75rem;color:var(--muted);margin-bottom:.8rem">
+            Menghapus semua data lokal (penjualan, mutasi, produk) dan mengembalikan data contoh.
+          </p>
+          <button class="btn-sm btn-danger" onclick="resetData()">🗑 Reset Semua Data</button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- ================= MODAL ================= -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Form</h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal()">Batal</button>
+      <button class="btn btn-primary" id="modalSave">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ================================================================
+   WARISAN SPA — semua fungsi berjalan client-side (offline-first)
+   Data tersimpan di localStorage. Lapisan API di bawah siap disambung
+   ke Google Apps Script Web App — cukup isi URL di Pengaturan.
+   ================================================================ */
+
+/* ---------------- LAPISAN API (siap Apps Script) ---------------- */
+const API = {
+  url: localStorage.getItem("warisan_api_url") || "",
+  async call(action, payload){
+    if(!this.url) throw new Error("URL API belum diisi (Pengaturan)");
+    const res = await fetch(this.url, {
+      method: "POST",
+      headers: {"Content-Type":"text/plain"},  // Apps Script tidak menerima preflight CORS
+      body: JSON.stringify({action, ...payload, token: localStorage.getItem("warisan_token")})
+    });
+    return res.json();
+  }
+  /* Nanti tinggal panggil: API.call("getSales"), API.call("addSale", {...}) dll.
+     Struktur respons yang disarankan: {status:"ok", data:[...]} */
+};
+
+/* ---------------- UTIL ---------------- */
+const DB_KEY = "warisan_db_v1";
+const $  = s => document.querySelector(s);
+const fmtRp = n => "Rp " + Number(n||0).toLocaleString("id-ID");
+const todayStr = () => new Date().toISOString().slice(0,10);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+
+function toast(msg, err=false){
+  const el = document.createElement("div");
+  el.className = "toast-item" + (err ? " err" : "");
+  el.textContent = msg;
+  $("#toast").appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+/* ---------------- DATABASE (seed + localStorage) ---------------- */
+function seedDB(){
+  return {
+    gerai: ["Gerai 1","Gerai 2","Gerai 3","Office"],
+    produk: [
+      {id:uid(), nama:"Kopi Susu",   kategori:"Minuman",  harga:18000, stok:120},
+      {id:uid(), nama:"Kopi Hitam",  kategori:"Minuman",  harga:15000, stok:95},
+      {id:uid(), nama:"Roti Bakar",  kategori:"Makanan",  harga:15000, stok:60},
+      {id:uid(), nama:"Nasi Goreng", kategori:"Makanan",  harga:25000, stok:40},
+      {id:uid(), nama:"Paket Corporate", kategori:"Paket",harga:175000,stok:15},
+      {id:uid(), nama:"Es Teh Manis",kategori:"Minuman",  harga:8000,  stok:200},
+      {id:uid(), nama:"Pisang Goreng",kategori:"Makanan", harga:12000, stok:75},
+      {id:uid(), nama:"Jus Alpukat", kategori:"Minuman",  harga:20000, stok:35}
+    ],
+    sales: [
+      {id:uid(), tanggal:todayStr(), gerai:"Gerai 1", produk:"Kopi Susu",   qty:3, harga:18000, metode:"QRIS"},
+      {id:uid(), tanggal:todayStr(), gerai:"Gerai 2", produk:"Roti Bakar",  qty:2, harga:15000, metode:"Tunai"},
+      {id:uid(), tanggal:todayStr(), gerai:"Gerai 3", produk:"Kopi Susu",   qty:5, harga:18000, metode:"Transfer"},
+      {id:uid(), tanggal:todayStr(), gerai:"Office",  produk:"Paket Corporate", qty:1, harga:175000, metode:"Transfer"},
+      {id:uid(), tanggal:todayStr(), gerai:"Gerai 1", produk:"Nasi Goreng", qty:2, harga:25000, metode:"QRIS"},
+      {id:uid(), tanggal:todayStr(), gerai:"Gerai 3", produk:"Jus Alpukat", qty:2, harga:20000, metode:"Tunai"}
+    ],
+    mutasi: [
+      {id:uid(), waktu:"10:45", tanggal:todayStr(), bank:"BCA",     ket:"Transfer dari Budi - Gerai 1", nominal:1500000},
+      {id:uid(), waktu:"09:30", tanggal:todayStr(), bank:"Mandiri", ket:"Pembayaran Invoice #INV-001",  nominal:3200000},
+      {id:uid(), waktu:"08:15", tanggal:todayStr(), bank:"BRI",     ket:"Biaya Admin Bulanan",          nominal:-15000},
+      {id:uid(), waktu:"11:20", tanggal:todayStr(), bank:"BCA",     ket:"Transfer dari Sari - Gerai 3", nominal:950000},
+      {id:uid(), waktu:"12:05", tanggal:todayStr(), bank:"Mandiri", ket:"Setoran QRIS Gerai 2",         nominal:760000},
+      {id:uid(), waktu:"13:40", tanggal:todayStr(), bank:"BRI",     ket:"Transfer dari Rina - Office",  nominal:1750000}
+    ],
+    rekon: [
+      {id:uid(), tanggal:todayStr(), ket:"Transfer dari Budi - Gerai 1", nominal:1500000, status:"cocok"},
+      {id:uid(), tanggal:todayStr(), ket:"Pembayaran Invoice #INV-001",  nominal:3200000, status:"cocok"},
+      {id:uid(), tanggal:todayStr(), ket:"Setoran QRIS Gerai 2",         nominal:760000,  status:"pending"},
+      {id:uid(), tanggal:todayStr(), ket:"Setoran Tunai Gerai 1",        nominal:300000,  status:"pending"},
+      {id:uid(), tanggal:todayStr(), ket:"Transfer dari Rina - Office",  nominal:1750000, status:"selisih"},
+      {id:uid(), tanggal:todayStr(), ket:"Setoran QRIS Gerai 3",         nominal:910000,  status:"selisih"}
+    ]
+  };
+}
+let DB;
+function loadDB(){
+  try{ DB = JSON.parse(localStorage.getItem(DB_KEY)) || seedDB(); }
+  catch(_){ DB = seedDB(); }
+  saveDB();
+}
+function saveDB(){ localStorage.setItem(DB_KEY, JSON.stringify(DB)); }
+
+/* ================================================================
+   AUTH — JWT demo (HS256 via Web Crypto). Produksi: auth di server.
+   ================================================================ */
+const TOKEN_KEY = "warisan_token";
+const DEMO_SECRET = "warisan-demo-secret-jangan-dipakai-produksi";
+
+const b64url = s => btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const b64urlBuf = b => btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const b64urlToBuf = b => Uint8Array.from(atob(b.replace(/-/g,"+").replace(/_/g,"/")), c => c.charCodeAt(0));
+
+async function hmacKey(){
+  return crypto.subtle.importKey("raw", new TextEncoder().encode(DEMO_SECRET), {name:"HMAC", hash:"SHA-256"}, false, ["sign","verify"]);
+}
+async function createJWT(payload){
+  const data = b64url(JSON.stringify({alg:"HS256",typ:"JWT"})) + "." + b64url(JSON.stringify(payload));
+  const sig = b64urlBuf(await crypto.subtle.sign("HMAC", await hmacKey(), new TextEncoder().encode(data)));
+  return data + "." + sig;
+}
+async function verifyJWT(token){
+  try{
+    const p = token.split(".");
+    if(p.length !== 3) return null;
+    const ok = await crypto.subtle.verify("HMAC", await hmacKey(), b64urlToBuf(p[2]), new TextEncoder().encode(p[0]+"."+p[1]));
+    if(!ok) return null;
+    const payload = JSON.parse(new TextDecoder().decode(b64urlToBuf(p[1])));
+    if(!payload.exp || payload.exp*1000 < Date.now()) return null;
+    return payload;
+  }catch(_){ return null; }
+}
+
+const DEMO_USERS = [
+  {email:"admin@warisan.id", pass:"admin123", name:"Admin Pusat", role:"Super Admin"},
+  {email:"kasir@warisan.id", pass:"kasir123", name:"Kasir Gerai 1", role:"Staff"}
+];
+
+function showError(msg){
+  const a = $("#alert");
+  a.textContent = msg; a.classList.add("error");
+}
+
+$("#loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  $("#alert").classList.remove("error");
+  const btn = $("#btnLogin");
+  btn.disabled = true; btn.textContent = "Memeriksa…";
+  const email = $("#email").value.trim().toLowerCase();
+  const pass  = $("#password").value;
+  await new Promise(r => setTimeout(r, 400));
+  const user = DEMO_USERS.find(u => u.email === email && u.pass === pass);
+  if(!user){
+    btn.disabled = false; btn.textContent = "Masuk";
+    showError("Email atau kata sandi salah."); return;
+  }
+  const payload = {sub:user.email, name:user.name, role:user.role,
+    iss:"warisan-auth", iat:Math.floor(Date.now()/1000), exp:Math.floor(Date.now()/1000)+8*3600};
+  localStorage.setItem(TOKEN_KEY, await createJWT(payload));
+  bootApp(payload);
+});
+
+/* OAuth Google — ganti CLIENT_ID saat siap */
+const GOOGLE_CLIENT_ID = "GANTI_CLIENT_ID_ANDA.apps.googleusercontent.com";
+$("#btnGoogle").addEventListener("click", () => {
+  if(GOOGLE_CLIENT_ID.startsWith("GANTI")){
+    showError("OAuth Google belum dikonfigurasi. Gunakan akun demo terlebih dahulu."); return;
+  }
+  const start = () => google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,
+    callback: res => { localStorage.setItem(TOKEN_KEY, res.credential); bootAppFromToken(); }});
+  if(!window.google?.accounts?.id){
+    const s = document.createElement("script");
+    s.src = "https://accounts.google.com/gsi/client";
+    s.onload = () => { start(); setTimeout(() => google.accounts.id.prompt(), 600); };
+    s.onerror = () => showError("Gagal memuat Google Identity Services.");
+    document.head.appendChild(s);
+  } else { start(); google.accounts.id.prompt(); }
+});
+
+$("#btnLogout").addEventListener("click", () => {
+  localStorage.removeItem(TOKEN_KEY);
+  location.reload();
+});
+
+async function bootAppFromToken(){
+  const p = await verifyJWT(localStorage.getItem(TOKEN_KEY));
+  p ? bootApp(p) : (localStorage.removeItem(TOKEN_KEY), location.reload());
+}
+
+let CURRENT_USER = null;
+function bootApp(payload){
+  CURRENT_USER = payload;
+  $("#userName").textContent  = payload.name || "Pengguna";
+  $("#userRole").textContent  = payload.role || "User";
+  $("#userAvatar").textContent = (payload.name || "U").charAt(0).toUpperCase();
+  $("#setName").value  = payload.name || "";
+  $("#setEmail").value = payload.sub || "";
+  $("#setRole").value  = payload.role || "";
+  $("#setApiUrl").value = API.url;
+  updateApiStatus();
+  $("#todayDate").textContent = "📅 " + new Date().toLocaleDateString("id-ID", {day:"numeric", month:"long", year:"numeric"});
+  loadDB();
+  $("#viewLogin").classList.add("hidden");
+  $("#viewApp").classList.remove("hidden");
+  fillGeraiFilter();
+  renderAll();
+  lazyLoadChart();
+}
+
+/* ================================================================
+   ROUTER / NAVIGASI
+   ================================================================ */
+const PAGE_TITLES = {
+  dashboard:"Dashboard Overview", penjualan:"Data Penjualan", mutasi:"Mutasi Bank",
+  rekon:"Rekonsiliasi", laporan:"Laporan", produk:"Master Produk", pengaturan:"Pengaturan"
+};
+function showPage(name){
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  $("#page-" + name).classList.add("active");
+  document.querySelectorAll("#mainNav a").forEach(a => a.classList.toggle("active", a.dataset.page === name));
+  $("#pageTitle").textContent = PAGE_TITLES[name] || name;
+  closeSidebarMobile();
+  if(name === "dashboard" && window.Chart) renderChart();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+document.querySelectorAll("#mainNav a").forEach(a =>
+  a.addEventListener("click", e => { e.preventDefault(); showPage(a.dataset.page); }));
+
+/* Sidebar mobile */
+const sidebar = $("#sidebar"), overlay = $("#overlay");
+$("#btnMenu").addEventListener("click", () => {
+  sidebar.classList.toggle("open"); overlay.classList.toggle("show");
+});
+overlay.addEventListener("click", closeSidebarMobile);
+function closeSidebarMobile(){
+  sidebar.classList.remove("open"); overlay.classList.remove("show");
+}
+
+/* Sinkronisasi (simulasi → nanti panggil API.call) */
+$("#btnSync").addEventListener("click", async function(){
+  const t = this.textContent;
+  this.disabled = true; this.textContent = "⟳ Menyinkronkan…";
+  try{
+    if(API.url){
+      // const res = await API.call("sync"); DB = {...DB, ...res.data}; saveDB();
+      await new Promise(r => setTimeout(r, 1200));
+      toast("Data tersinkron dengan server ✔");
+    }else{
+      await new Promise(r => setTimeout(r, 900));
+      toast("Mode lokal — isi URL API di Pengaturan untuk sinkron cloud");
+    }
+  }catch(err){ toast(err.message, true); }
+  this.disabled = false; this.textContent = t;
+  renderAll();
+});
+
+/* ================================================================
+   RENDER: DASHBOARD
+   ================================================================ */
+const saleTotal = s => s.qty * s.harga;
+
+function renderDashboard(){
+  const today = todayStr();
+  const tSales  = DB.sales.filter(s => s.tanggal === today);
+  const sumToday  = tSales.reduce((a,s) => a + saleTotal(s), 0);
+  const sumMutasi = DB.mutasi.filter(m => m.tanggal === today && m.nominal > 0).reduce((a,m) => a + m.nominal, 0);
+  const cocok   = DB.rekon.filter(r => r.status === "cocok").length;
+  const pending = DB.rekon.filter(r => r.status === "pending").length;
+  const selisih = DB.rekon.filter(r => r.status === "selisih").length;
+
+  $("#dashStats").innerHTML = `
+    <div class="card stat-card">
+      <div class="stat-head"><div><p>Penjualan Hari Ini</p><h3>${fmtRp(sumToday)}</h3></div>
+        <div class="stat-icon ic-blue">📈</div></div>
+      <p class="stat-foot text-muted2">${tSales.length} transaksi hari ini</p>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-head"><div><p>Total Penjualan (Semua)</p><h3>${fmtRp(DB.sales.reduce((a,s)=>a+saleTotal(s),0))}</h3></div>
+        <div class="stat-icon ic-emerald">📊</div></div>
+      <p class="stat-foot text-muted2">${DB.sales.length} transaksi tercatat</p>
+    </div>
+    <div class="card stat-card" style="border-left:3px solid var(--emerald)">
+      <div class="stat-head"><div><p>Status Rekonsiliasi</p><h3>Cocok: ${cocok}</h3></div>
+        <div class="stat-icon ic-emerald">✔️</div></div>
+      <div class="badges">
+        <span class="badge badge-pending">Pending: ${pending}</span>
+        <span class="badge badge-selisih">Selisih: ${selisih}</span>
+      </div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-head"><div><p>Mutasi Masuk Hari Ini</p><h3>${fmtRp(sumMutasi)}</h3></div>
+        <div class="stat-icon ic-purple">🏦</div></div>
+      <p class="stat-foot text-muted2">Dari ${new Set(DB.mutasi.map(m=>m.bank)).size} Bank (BCA, Mandiri, BRI)</p>
+    </div>`;
+
+  $("#dashRecon").innerHTML = `
+    <div class="recon-item"><div class="dot ic-emerald">✓</div>
+      <div><p>Cocok<span>Sesuai antara Bank &amp; Penjualan</span></p></div><b class="text-em">${cocok}</b></div>
+    <div class="recon-item"><div class="dot ic-amber">⏱</div>
+      <div><p>Pending<span>Menunggu verifikasi manual</span></p></div><b style="color:var(--amber)">${pending}</b></div>
+    <div class="recon-item"><div class="dot ic-red">⚠</div>
+      <div><p>Selisih<span>Perlu tindak lanjut</span></p></div><b class="text-red">${selisih}</b></div>`;
+
+  $("#dashMutasi").innerHTML = tableHTML(
+    ["Waktu","Bank","Keterangan","Nominal"],
+    DB.mutasi.slice(0,5).map(m => [m.waktu, bankTag(m.bank), esc(m.ket),
+      `<span class="num-right ${m.nominal>=0?"text-em":"text-red"}" style="display:block">${m.nominal>=0?"+ ":"- "}${fmtRp(Math.abs(m.nominal))}</span>`])
+  );
+  $("#dashSales").innerHTML = tableHTML(
+    ["Gerai","Produk","Qty","Total"],
+    DB.sales.slice(0,5).map(s => [s.gerai, esc(s.produk), s.qty, `<span class="text-w">${fmtRp(saleTotal(s))}</span>`])
+  );
+}
+
+/* ================================================================
+   RENDER: PENJUALAN
+   ================================================================ */
+function fillGeraiFilter(){
+  $("#saleFilterGerai").innerHTML = `<option value="">Semua Gerai</option>` +
+    DB.gerai.map(g => `<option>${g}</option>`).join("");
+}
+function metodeTag(m){
+  const cls = m === "Tunai" ? "tag-cash" : m === "Transfer" ? "tag-tf" : "tag-qris";
+  return `<span class="tag ${cls}">${m}</span>`;
+}
+function renderPenjualan(){
+  const q  = ($("#saleSearch").value || "").toLowerCase();
+  const g  = $("#saleFilterGerai").value;
+  const mt = $("#saleFilterMetode").value;
+  const rows = DB.sales
+    .filter(s => (!g || s.gerai === g) && (!mt || s.metode === mt) &&
+      (s.produk.toLowerCase().includes(q) || s.gerai.toLowerCase().includes(q)))
+    .sort((a,b) => b.tanggal.localeCompare(a.tanggal))
+    .map(s => [s.tanggal, s.gerai, esc(s.produk), s.qty, fmtRp(s.harga), metodeTag(s.metode),
+      `<span class="text-w">${fmtRp(saleTotal(s))}</span>`,
+      `<button class="btn-sm btn-danger" onclick="deleteSale('${s.id}')">Hapus</button>`]);
+  $("#saleTable").innerHTML = tableHTML(
+    ["Tanggal","Gerai","Produk","Qty","Harga","Metode","Total",""], rows);
+}
+function deleteSale(id){
+  if(!confirm("Hapus transaksi ini?")) return;
+  DB.sales = DB.sales.filter(s => s.id !== id);
+  saveDB(); renderPenjualan(); renderDashboard(); toast("Transaksi dihapus");
+}
+
+function openSaleModal(){
+  const prodOpts = DB.produk.map(p => `<option value="${esc(p.nama)}" data-harga="${p.harga}">${esc(p.nama)} — ${fmtRp(p.harga)}</option>`).join("");
+  const geraiOpts = DB.gerai.map(g => `<option>${g}</option>`).join("");
+  openModal("Tambah Penjualan", `
+    <div class="field"><label>Tanggal</label><input type="date" id="fSaleDate" value="${todayStr()}"></div>
+    <div class="field"><label>Gerai</label><select id="fSaleGerai">${geraiOpts}</select></div>
+    <div class="field"><label>Produk</label><select id="fSaleProduk" onchange="syncSalePrice()">${prodOpts}</select></div>
+    <div class="field"><label>Qty</label><input type="number" id="fSaleQty" min="1" value="1" oninput="syncSalePrice()"></div>
+    <div class="field"><label>Metode Pembayaran</label>
+      <select id="fSaleMetode"><option>QRIS</option><option>Transfer</option><option>Tunai</option></select></div>
+    <div class="field"><label>Total</label><input type="text" id="fSaleTotal" disabled></div>`);
+  $("#modalSave").onclick = saveSale;
+  syncSalePrice();
+}
+function syncSalePrice(){
+  const sel = $("#fSaleProduk");
+  const harga = Number(sel.selectedOptions[0]?.dataset.harga || 0);
+  const qty = Number($("#fSaleQty").value || 1);
+  $("#fSaleTotal").value = fmtRp(harga * qty);
+}
+function saveSale(){
+  const sel = $("#fSaleProduk");
+  const harga = Number(sel.selectedOptions[0].dataset.harga);
+  const qty = Math.max(1, Number($("#fSaleQty").value || 1));
+  const produk = DB.produk.find(p => p.nama === sel.value);
+  if(produk && produk.stok < qty){ toast("Stok tidak mencukupi! Stok tersisa: " + produk.stok, true); return; }
+  if(produk) produk.stok -= qty;
+  DB.sales.unshift({id:uid(), tanggal:$("#fSaleDate").value || todayStr(), gerai:$("#fSaleGerai").value,
+    produk:sel.value, qty, harga, metode:$("#fSaleMetode").value});
+  saveDB(); closeModal(); renderPenjualan(); renderDashboard(); renderProduk(); renderLaporan();
+  toast("Penjualan tersimpan ✔");
+}
+
+/* ================================================================
+   RENDER: MUTASI BANK
+   ================================================================ */
+function bankTag(b){
+  const cls = b === "BCA" ? "tag-bca" : b === "Mandiri" ? "tag-mandiri" : "tag-bri";
+  return `<span class="tag ${cls}">${b}</span>`;
+}
+function renderMutasi(){
+  const q = ($("#mutSearch").value || "").toLowerCase();
+  const b = $("#mutFilterBank").value;
+  const rows = DB.mutasi
+    .filter(m => (!b || m.bank === b) && m.ket.toLowerCase().includes(q))
+    .sort((a,b2) => (b2.tanggal + b2.waktu).localeCompare(a.tanggal + a.waktu))
+    .map(m => [m.tanggal, m.waktu, bankTag(m.bank), esc(m.ket),
+      `<span class="num-right ${m.nominal>=0?"text-em":"text-red"}" style="display:block">${m.nominal>=0?"+ ":"- "}${fmtRp(Math.abs(m.nominal))}</span>`,
+      `<button class="btn-sm btn-danger" onclick="deleteMutasi('${m.id}')">Hapus</button>`]);
+  $("#mutTable").innerHTML = tableHTML(["Tanggal","Waktu","Bank","Keterangan","Nominal",""], rows);
+}
+function deleteMutasi(id){
+  if(!confirm("Hapus mutasi ini?")) return;
+  DB.mutasi = DB.mutasi.filter(m => m.id !== id);
+  saveDB(); renderMutasi(); renderDashboard(); toast("Mutasi dihapus");
+}
+function openMutasiModal(){
+  openModal("Tambah Mutasi Bank", `
+    <div class="field"><label>Bank</label>
+      <select id="fMutBank"><option>BCA</option><option>Mandiri</option><option>BRI</option></select></div>
+    <div class="field"><label>Keterangan</label><input type="text" id="fMutKet" placeholder="cth: Transfer dari Budi - Gerai 1"></div>
+    <div class="field"><label>Jenis</label>
+      <select id="fMutJenis" onchange="syncMutNominal()"><option value="masuk">Uang Masuk (+)</option><option value="keluar">Uang Keluar (−)</option></select></div>
+    <div class="field"><label>Nominal (Rp)</label><input type="number" id="fMutNominal" min="0" placeholder="1500000"></div>`);
+  $("#modalSave").onclick = saveMutasi;
+}
+function syncMutNominal(){}
+function saveMutasi(){
+  const ket = $("#fMutKet").value.trim();
+  const val = Number($("#fMutNominal").value || 0);
+  if(!ket || val <= 0){ toast("Lengkapi keterangan & nominal", true); return; }
+  const now = new Date();
+  const nominal = $("#fMutJenis").value === "keluar" ? -val : val;
+  DB.mutasi.unshift({id:uid(), tanggal:todayStr(),
+    waktu:String(now.getHours()).padStart(2,"0") + ":" + String(now.getMinutes()).padStart(2,"0"),
+    bank:$("#fMutBank").value, ket, nominal});
+  saveDB(); closeModal(); renderMutasi(); renderDashboard(); toast("Mutasi tersimpan ✔");
+}
+
+/* ================================================================
+   RENDER: REKONSILIASI
+   ================================================================ */
+function renderRekon(){
+  const f = $("#rekonFilter").value;
+  const rows = DB.rekon
+    .filter(r => !f || r.status === f)
+    .map(r => {
+      const badge = r.status === "cocok" ? `<span class="badge badge-cocok">Cocok</span>`
+        : r.status === "pending" ? `<span class="badge badge-pending">Pending</span>`
+        : `<span class="badge badge-selisih">Selisih</span>`;
+      const act = r.status === "pending"
+        ? `<button class="btn-sm btn-ok" onclick="setRekon('${r.id}','cocok')">Verifikasi</button>
+           <button class="btn-sm btn-danger" onclick="setRekon('${r.id}','selisih')">Tandai Selisih</button>`
+        : r.status === "selisih"
+        ? `<button class="btn-sm btn-act" onclick="setRekon('${r.id}','cocok')">Tandai Selesai</button>`
+        : `<span style="font-size:.7rem;color:var(--muted)">—</span>`;
+      return [r.tanggal, esc(r.ket), `<span class="text-w">${fmtRp(r.nominal)}</span>`, badge, act];
+    });
+  $("#rekonTable").innerHTML = tableHTML(["Tanggal","Keterangan","Nominal","Status","Aksi"], rows);
+}
+function setRekon(id, status){
+  const r = DB.rekon.find(x => x.id === id);
+  if(r){ r.status = status; saveDB(); renderRekon(); renderDashboard();
+    toast("Status diperbarui: " + status); }
+}
+/* Rekonsiliasi otomatis: cocokkan mutasi masuk dengan rekor penjualan Transfer */
+function runRekon(){
+  let matched = 0;
+  DB.rekon.filter(r => r.status === "pending").forEach(r => {
+    const hit = DB.sales.some(s => s.metode === "Transfer" && saleTotal(s) === r.nominal);
+    if(hit){ r.status = "cocok"; matched++; }
+  });
+  saveDB(); renderRekon(); renderDashboard();
+  toast(matched ? `${matched} item berhasil dicocokkan otomatis ✔` : "Tidak ada item pending yang cocok otomatis");
+}
+
+/* ================================================================
+   RENDER: LAPORAN
+   ================================================================ */
+function renderLaporan(){
+  const from = $("#repFrom").value || "0000-01-01";
+  const to   = $("#repTo").value || "9999-12-31";
+  const rows = DB.sales.filter(s => s.tanggal >= from && s.tanggal <= to);
+  const total = rows.reduce((a,s) => a + saleTotal(s), 0);
+  const trx = rows.length;
+  const perGerai = {};
+  rows.forEach(s => { perGerai[s.gerai] = (perGerai[s.gerai]||0) + saleTotal(s); });
+  const best = Object.entries(perGerai).sort((a,b) => b[1]-a[1])[0];
+
+  $("#reportStats").innerHTML = `
+    <div class="card stat-card"><div class="stat-head"><div><p>Total Penjualan</p><h3>${fmtRp(total)}</h3></div>
+      <div class="stat-icon ic-emerald">💰</div></div>
+      <p class="stat-foot text-muted2">Periode ${from} s/d ${to}</p></div>
+    <div class="card stat-card"><div class="stat-head"><div><p>Jumlah Transaksi</p><h3>${trx}</h3></div>
+      <div class="stat-icon ic-blue">🧾</div></div>
+      <p class="stat-foot text-muted2">Transaksi tercatat</p></div>
+    <div class="card stat-card"><div class="stat-head"><div><p>Rata-rata per Transaksi</p><h3>${fmtRp(trx ? total/trx : 0)}</h3></div>
+      <div class="stat-icon ic-purple">📊</div></div>
+      <p class="stat-foot text-muted2">Average transaction value</p></div>
+    <div class="card stat-card"><div class="stat-head"><div><p>Gerai Terbaik</p><h3>${best ? best[0] : "—"}</h3></div>
+      <div class="stat-icon ic-amber">🏆</div></div>
+      <p class="stat-foot text-muted2">${best ? fmtRp(best[1]) : "-"}</p></div>`;
+
+  const body = rows.sort((a,b) => a.tanggal.localeCompare(b.tanggal)).map(s =>
+    [s.tanggal, s.gerai, esc(s.produk), s.qty, s.metode, `<span class="text-w">${fmtRp(saleTotal(s))}</span>`]);
+  $("#reportTable").innerHTML = tableHTML(["Tanggal","Gerai","Produk","Qty","Metode","Total"], body);
+}
+function exportCSV(){
+  const from = $("#repFrom").value || "0000-01-01";
+  const to   = $("#repTo").value || "9999-12-31";
+  const rows = DB.sales.filter(s => s.tanggal >= from && s.tanggal <= to);
+  if(!rows.length){ toast("Tidak ada data untuk di-export", true); return; }
+  const header = ["Tanggal","Gerai","Produk","Qty","Harga","Metode","Total"];
+  const csv = [header.join(";")].concat(rows.map(s =>
+    [s.tanggal, s.gerai, `"${s.produk}"`, s.qty, s.harga, s.metode, saleTotal(s)].join(";")
+  )).join("\n");
+  const blob = new Blob(["\ufeff" + csv], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "laporan-penjualan-" + todayStr() + ".csv";
+  a.click(); URL.revokeObjectURL(a.href);
+  toast("CSV berhasil diunduh ✔");
+}
+
+/* ================================================================
+   RENDER: MASTER PRODUK
+   ================================================================ */
+function renderProduk(){
+  const q = ($("#prodSearch").value || "").toLowerCase();
+  const list = DB.produk.filter(p => p.nama.toLowerCase().includes(q) || p.kategori.toLowerCase().includes(q));
+  $("#prodGrid").innerHTML = list.length ? list.map(p => `
+    <div class="prod-card">
+      <span class="pcat">${esc(p.kategori)}</span>
+      <span class="pname">${esc(p.nama)}</span>
+      <span class="pharga">${fmtRp(p.harga)}</span>
+      <span class="pstok ${p.stok < 20 ? "text-red" : "text-em"}">Stok: ${p.stok} ${p.stok < 20 ? "⚠ rendah" : ""}</span>
+      <div class="prod-actions">
+        <button class="btn-sm btn-act" onclick="openProductModal('${p.id}')">Edit</button>
+        <button class="btn-sm btn-danger" onclick="deleteProduct('${p.id}')">Hapus</button>
+      </div>
+    </div>`).join("") : `<div class="empty">Produk tidak ditemukan</div>`;
+}
+function openProductModal(id){
+  const p = id ? DB.produk.find(x => x.id === id) : null;
+  openModal(p ? "Edit Produk" : "Tambah Produk", `
+    <div class="field"><label>Nama Produk</label><input type="text" id="fProdNama" value="${p ? esc(p.nama) : ""}"></div>
+    <div class="field"><label>Kategori</label>
+      <select id="fProdKat">${["Minuman","Makanan","Paket","Lainnya"].map(k =>
+        `<option ${p && p.kategori === k ? "selected" : ""}>${k}</option>`).join("")}</select></div>
+    <div class="field"><label>Harga (Rp)</label><input type="number" id="fProdHarga" min="0" value="${p ? p.harga : ""}"></div>
+    <div class="field"><label>Stok</label><input type="number" id="fProdStok" min="0" value="${p ? p.stok : ""}"></div>`);
+  $("#modalSave").onclick = () => saveProduct(id);
+}
+function saveProduct(id){
+  const nama = $("#fProdNama").value.trim();
+  const harga = Number($("#fProdHarga").value || 0);
+  const stok = Number($("#fProdStok").value || 0);
+  if(!nama || harga <= 0){ toast("Lengkapi nama & harga", true); return; }
+  if(id){
+    const p = DB.produk.find(x => x.id === id);
+    Object.assign(p, {nama, kategori:$("#fProdKat").value, harga, stok});
+  }else{
+    DB.produk.push({id:uid(), nama, kategori:$("#fProdKat").value, harga, stok});
+  }
+  saveDB(); closeModal(); renderProduk(); toast("Produk tersimpan ✔");
+}
+function deleteProduct(id){
+  if(!confirm("Hapus produk ini?")) return;
+  DB.produk = DB.produk.filter(p => p.id !== id);
+  saveDB(); renderProduk(); toast("Produk dihapus");
+}
+
+/* ================================================================
+   PENGATURAN
+   ================================================================ */
+function saveProfile(){
+  const name = $("#setName").value.trim();
+  if(!name){ toast("Nama tidak boleh kosong", true); return; }
+  const [h, b, s] = localStorage.getItem(TOKEN_KEY).split(".");
+  const payload = JSON.parse(new TextDecoder().decode(b64urlToBuf(b)));
+  payload.name = name;
+  localStorage.setItem(TOKEN_KEY, b64url(JSON.stringify({alg:"HS256",typ:"JWT"})) + "." + b64url(JSON.stringify(payload)) + "." + s);
+  $("#userName").textContent = name;
+  $("#userAvatar").textContent = name.charAt(0).toUpperCase();
+  toast("Profil diperbarui ✔");
+}
+function saveApiUrl(){
+  API.url = $("#setApiUrl").value.trim();
+  localStorage.setItem("warisan_api_url", API.url);
+  updateApiStatus();
+  toast(API.url ? "URL API tersimpan ✔" : "URL API dikosongkan — mode lokal");
+}
+function updateApiStatus(){
+  $("#apiStatus").innerHTML = API.url
+    ? `Status: <code>TERHUBUNG</code><br>URL: ${esc(API.url)}<br><span style="color:var(--emerald)">Data akan disinkronkan ke Apps Script.</span>`
+    : `Status: <code>MODE LOKAL</code><br>Data tersimpan di browser (localStorage).<br>Isi URL Web App Apps Script untuk sinkron cloud.`;
+}
+function resetData(){
+  if(!confirm("Yakin reset SEMUA data ke contoh awal?")) return;
+  localStorage.removeItem(DB_KEY);
+  loadDB(); renderAll(); toast("Data direset ke contoh awal");
+}
+
+/* ================================================================
+   MODAL & HELPERS
+   ================================================================ */
+function openModal(title, bodyHTML){
+  $("#modalTitle").textContent = title;
+  $("#modalBody").innerHTML = bodyHTML;
+  $("#modalOverlay").classList.add("show");
+}
+function closeModal(){ $("#modalOverlay").classList.remove("show"); }
+$("#modalOverlay").addEventListener("click", e => { if(e.target.id === "modalOverlay") closeModal(); });
+document.addEventListener("keydown", e => { if(e.key === "Escape") closeModal(); });
+
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function tableHTML(heads, rows){
+  if(!rows.length) return `<div class="empty">Belum ada data</div>`;
+  return `<table><thead><tr>${heads.map((h,i) =>
+    `<th class="${i === heads.length-1 && h === "" ? "" : ""}" style="${i>0?"":""}">${h}</th>`).join("")}</tr></thead>
+    <tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+}
+
+/* ================================================================
+   CHART (lazy load)
+   ================================================================ */
+let salesChart = null;
+function lazyLoadChart(){
+  const s = document.createElement("script");
+  s.src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js";
+  s.defer = true;
+  s.onload = () => renderChart();
+  document.head.appendChild(s);
+}
+function renderChart(){
+  if(!window.Chart) return;
+  const days = Number($("#chartRange").value || 7);
+  const labels = [], dataByGerai = {};
+  DB.gerai.forEach(g => dataByGerai[g] = []);
+  for(let i = days-1; i >= 0; i--){
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0,10);
+    labels.push(d.toLocaleDateString("id-ID", {day:"numeric", month:"short"}));
+    DB.gerai.forEach(g => {
+      const sum = DB.sales.filter(s => s.tanggal === key && s.gerai === g)
+        .reduce((a,s) => a + saleTotal(s), 0) / 1000000;
+      dataByGerai[g].push(Math.round(sum*100)/100);
+    });
+  }
+  const colors = { "Gerai 1":"#3b82f6", "Gerai 2":"#10b981", "Gerai 3":"#8b5cf6", "Office":"#f59e0b" };
+  const ctx = $("#salesChart").getContext("2d");
+  if(salesChart) salesChart.destroy();
+  salesChart = new Chart(ctx, {
+    type:"line",
+    data:{ labels, datasets: DB.gerai.map(g => ({
+      label:g, data:dataByGerai[g], borderColor:colors[g] || "#38bdf8",
+      backgroundColor:(colors[g] || "#38bdf8") + "1a", tension:.4, fill:true, pointRadius:2, borderWidth:2
+    }))},
+    options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:"index", intersect:false},
+      plugins:{ legend:{position:"top", labels:{color:"#94a3b8", boxWidth:12, font:{size:11}}},
+        tooltip:{callbacks:{label:c => ` ${c.dataset.label}: Rp ${(c.parsed.y*1000000).toLocaleString("id-ID")}`}}},
+      scales:{ x:{grid:{display:false}, ticks:{color:"#64748b", maxTicksLimit:10}},
+               y:{grid:{color:"#334155"}, ticks:{color:"#64748b", callback:v => "Rp " + v + "jt"}}}}
+  });
+}
+$("#chartRange").addEventListener("change", renderChart);
+
+/* ================================================================
+   INIT
+   ================================================================ */
+function renderAll(){
+  renderDashboard(); renderPenjualan(); renderMutasi(); renderRekon();
+  renderLaporan(); renderProduk();
+}
+(async function init(){
+  const t = localStorage.getItem(TOKEN_KEY);
+  if(t){
+    const p = await verifyJWT(t);
+    if(p){ bootApp(p); return; }
+    localStorage.removeItem(TOKEN_KEY);
+  }
+})();
+</script>
+</body>
+</html>
