@@ -578,6 +578,9 @@ async function createJWT(payload){
   const sig = b64urlBuf(await crypto.subtle.sign("HMAC", await hmacKey(), new TextEncoder().encode(data)));
   return data + "." + sig;
 }
+function jwtIsActive(payload, now=Date.now()){
+  return typeof payload?.exp === "number" && Number.isFinite(payload.exp) && payload.exp*1000 >= now;
+}
 async function verifyJWT(token){
   try{
     const p = token.split(".");
@@ -585,7 +588,7 @@ async function verifyJWT(token){
     const ok = await crypto.subtle.verify("HMAC", await hmacKey(), b64urlToBuf(p[2]), new TextEncoder().encode(p[0]+"."+p[1]));
     if(!ok) return null;
     const payload = JSON.parse(new TextDecoder().decode(b64urlToBuf(p[1])));
-    if(!payload.exp || payload.exp*1000 < Date.now()) return null;
+    if(!jwtIsActive(payload)) return null;
     return payload;
   }catch(_){ return null; }
 }
